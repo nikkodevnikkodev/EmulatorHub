@@ -245,11 +245,12 @@ class Launcher(tk.Tk):
             ModernButton(self.action_btn_frame, "📁 Edit Path", self.edit_emulator, width=110).pack(side="left", padx=(0, 8))
             ModernButton(self.action_btn_frame, "🗑️ Remove", self.remove_emulator, width=100).pack(side="left")
         elif mode == "games":
-            ModernButton(self.action_btn_frame, "▶ Launch Game", self.launch_selected_game, primary=True, width=130).pack(side="left", padx=(0, 6))
-            ModernButton(self.action_btn_frame, "✏️ Path", self.edit_game_path, width=85).pack(side="left", padx=(0, 6))
-            ModernButton(self.action_btn_frame, "🖼️ Pick Cover", self.set_custom_cover, width=120).pack(side="left", padx=(0, 6))
-            ModernButton(self.action_btn_frame, "🌐 Fetch Cover", self.fetch_game_cover, width=120).pack(side="left", padx=(0, 6))
-            ModernButton(self.action_btn_frame, "🗑️ Remove", self.remove_game, width=100).pack(side="left")
+            ModernButton(self.action_btn_frame, "▶ Launch Game", self.launch_selected_game, primary=True, width=125).pack(side="left", padx=(0, 6))
+            ModernButton(self.action_btn_frame, "✏️ Rename", self.rename_game, width=100).pack(side="left", padx=(0, 6))
+            ModernButton(self.action_btn_frame, "✏️ Path", self.edit_game_path, width=80).pack(side="left", padx=(0, 6))
+            ModernButton(self.action_btn_frame, "🖼️ Pick Cover", self.set_custom_cover, width=110).pack(side="left", padx=(0, 6))
+            ModernButton(self.action_btn_frame, "🌐 Fetch Cover", self.fetch_game_cover, width=110).pack(side="left", padx=(0, 6))
+            ModernButton(self.action_btn_frame, "🗑️ Remove", self.remove_game, width=90).pack(side="left")
         else:
             ModernButton(self.action_btn_frame, "📂 Open Folder", self.open_selected_folder, primary=True, width=140).pack(side="left", padx=(0, 10))
             ModernButton(self.action_btn_frame, "🗑️ Remove", self.remove_folder, width=110).pack(side="left")
@@ -502,8 +503,8 @@ class Launcher(tk.Tk):
             messagebox.showwarning("No Emulator", "Please add at least one emulator first.")
             return
 
-        path = filedialog.askopenfilename(title="Select Game File (ROM / ISO / EXE)",
-                    filetypes=[("Games & ROMs", "*.iso *.rom *.bin *.zip *.rar *.nsp *.chd *.exe"), ("All Files", "*.*")])
+        path = filedialog.askopenfilename(title="Select Game File (ROM / ISO / CISO / EXE)",
+                    filetypes=[("Games & ROMs", "*.iso *.ciso *.rvz *.gcz *.wbfs *.rom *.bin *.zip *.rar *.nsp *.chd *.exe"), ("All Files", "*.*")])
         if not path:
             return
 
@@ -541,6 +542,20 @@ class Launcher(tk.Tk):
 
         ModernButton(win, "Save", save_new_game, primary=True, width=120, height=34).pack(pady=20)
 
+    def rename_game(self):
+        if self.selected_game_idx is None:
+            messagebox.showinfo("Selection", "Please select a game first.")
+            return
+        games = self.data.get("games", [])
+        if not (0 <= self.selected_game_idx < len(games)):
+            return
+        current_name = games[self.selected_game_idx].get("name", "")
+        new_name = simpledialog.askstring("Rename Game", "New name for the game:", initialvalue=current_name)
+        if new_name:
+            self.data["games"][self.selected_game_idx]["name"] = new_name.strip()
+            self.refresh()
+            self.set_status(f"Renamed to '{new_name}'")
+
     def edit_game_path(self):
         if self.selected_game_idx is None:
             messagebox.showinfo("Selection", "Please select a game first.")
@@ -550,7 +565,7 @@ class Launcher(tk.Tk):
             return
         
         path = filedialog.askopenfilename(title="Select Correct Game File",
-                    filetypes=[("Games & ROMs", "*.iso *.rom *.bin *.zip *.rar *.nsp *.chd *.exe"), ("All Files", "*.*")])
+                    filetypes=[("Games & ROMs", "*.iso *.ciso *.rvz *.gcz *.wbfs *.rom *.bin *.zip *.rar *.nsp *.chd *.exe"), ("All Files", "*.*")])
         if not path:
             return
             
